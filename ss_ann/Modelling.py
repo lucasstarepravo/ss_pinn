@@ -1,6 +1,5 @@
 import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from ss_ann.PINN import PINN_model
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
@@ -47,22 +46,6 @@ def import_stored_data(file, order, noise):
     return ij_link, coor, weights, dx
 
 
-class Standardisation:
-    def __init__(self, l_mean = None, h_scale_xy = None, h_scale_w = None):
-        self.l_mean = l_mean
-        self.h_scale_xy = h_scale_xy
-        self.h_scale_w = h_scale_w
-
-    def set_l_mean(self, l_mean):
-        self.l_mean = l_mean
-
-    def set_h_scale_xy(self, h_scale_xy):
-        self.h_scale_xy = h_scale_xy
-
-    def set_h_scale_w(self, h_scale_w):
-        self.h_scale_w = h_scale_w
-
-
 file = 8
 #ij_link1, coor1, weights1, dx1 = import_stored_data(file, order=2, noise=0.5)
 
@@ -99,11 +82,9 @@ train_f, val_f, train_l, val_l = train_test_split(train_f, train_l, test_size=0.
 
 N = train_l.shape[1]
 
-model = Sequential([
-    Dense(32, activation='relu', input_shape=(2 * N,)),
+model_instance = PINN_model(input_size=2*N, num_neurons=32, num_layers=2, output_size=N)
 
-    Dense(N, activation='linear')
-])
+model = model_instance.get_model()
 
 model.compile(optimizer='adam', loss='mean_absolute_error')
 
